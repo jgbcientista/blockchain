@@ -1,0 +1,156 @@
+
+/**
+ * Modelo - Rede Blockchain para obtenção de medicamentos por via judicial
+ */
+
+namespace org.redejudicialmedv7.br
+
+/*Ativo: Processo Judicial*/
+
+asset ProcessoJudMed identified by processoJudicialId {  
+  o String processoJudicialId 
+  o String numeroMPProcessoJudicial
+  o Movimento movimento  default="AbrirProcessoJudicial" 
+  o ESimNao concluido  default ="Nao" 
+  o String medicamento 
+  o String cpfPacienteSolicitante 
+  o UnidadeEntrega unidadeEntrega optional
+  --> EsferaPublica esferaPublica
+}
+
+ /*Participantes: Membros da esfera pública*/
+
+ participant EsferaPublica identified by idEsfera {  
+   o String idEsfera
+   o TipoEsfera tipo
+   o Estado estado
+   o String descricao optional
+  }
+  
+ /**
+ * Transações e respectivos eventos
+ */
+ 
+transaction AbrirSolicitacaoMedicamento {
+  --> ProcessoJudMed asset
+  --> EsferaPublica newEsferaPublica
+  o Movimento newMovimento default="AbrirSolicitacaoMedicamento"
+}
+
+event AbrirSolicitacaoMedicamentoEvent { 
+  --> ProcessoJudMed asset
+  --> EsferaPublica oldEsferaPublica
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento oldMovimento 
+  o Movimento newMovimento   
+}
+
+transaction SolicitarCompra {  
+  --> ProcessoJudMed asset
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento newMovimento default="SolicitacaoCompra"    
+}
+  
+event solicitacaoCompralEvent {  
+  --> ProcessoJudMed asset  
+  --> EsferaPublica oldEsferaPublica
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento oldMovimento 
+  o Movimento newMovimento       
+}
+
+transaction DisponibilizarAlmoxarifado { 
+  --> ProcessoJudMed asset
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento newMovimento default="DisponivelAlmoxarifado"    
+}
+  
+event disponivelAlmoxarifadoEvent {  
+  --> ProcessoJudMed asset  
+  --> EsferaPublica oldEsferaPublica
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento oldMovimento 
+  o Movimento newMovimento  
+}
+  
+transaction DisponibilizarUnidadeEntrega {
+  --> ProcessoJudMed asset
+  --> EsferaPublica newEsferaPublica  
+
+  o UnidadeEntrega newUnidadeEntrega
+  o Movimento movimento default="DisponivelRetirada"   
+}
+  
+event disponivelUnidadeEntregaEvent {
+  --> ProcessoJudMed asset 
+  --> EsferaPublica oldEsferaPublica
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento oldMovimento 
+  o Movimento newMovimento 
+  o UnidadeEntrega newUnidadeEntrega
+}
+    
+transaction ConfirmarRetirada { 
+  --> ProcessoJudMed asset
+  --> EsferaPublica newEsferaPublica
+  
+  o ESimNao newConcluido default="Sim" 
+  o Movimento movimento default="ConfimacaoRetirada"   
+}
+
+event retiradaConfirmadaEvent {  
+  --> ProcessoJudMed asset  
+  --> EsferaPublica oldEsferaPublica
+  --> EsferaPublica newEsferaPublica
+  
+  o Movimento oldMovimento 
+  o Movimento newMovimento    
+  o ESimNao oldConcluido
+  o ESimNao newConcluido  
+}
+
+enum Movimento {
+  o AbrirProcessoJudicial
+  o AbrirSolicitacaoMedicamento
+  o SolicitacaoCompra
+  o DisponivelAlmoxarifado
+  o EnvioUnidadeEntrega
+  o DisponivelRetirada
+  o ConfimacaoRetirada
+}
+
+enum UnidadeEntrega {
+  o USF_Ministro_Alkimin
+  o UBS_Bariri
+  o USF_Menino_Joel
+  o USF_Federacao
+  o USF_Carlos_Gomes
+}
+  
+enum Estado {
+  o Bahia
+  o Mato_Grosso
+  o Minas_Gerais
+  o Pernanbuco
+  o Rio_Janeiro
+  o Sao_Paulo    
+}
+  
+enum TipoEsfera {
+  o MinisterioPublico
+  o SecretariaMunicipalSaude
+  o SecretriaEstadualSaude    
+}
+
+enum ESimNao
+{
+  o Sim
+  o Nao
+}
+  
